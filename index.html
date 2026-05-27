@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter 24 // Exclusive Anthology Edition</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@200;300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,500;1,400;1,500&display=swap');
+
+        :root {
+            --bg-dark: #070708;
+            --surface-glass: rgba(15, 15, 18, 0.65);
+            --gold-light: #f3dfb6;
+            --gold-primary: #dfba73;
+            --gold-dark: #aa8643;
+            --gold-glow: rgba(223, 186, 115, 0.08);
+            --text-light: #f5f5f7;
+            --text-muted: #929296;
+            --border-glass: rgba(255, 255, 255, 0.05);
+            --ease-luxury: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            letter-spacing: 0.02em;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Persistent Ambient Dynamic Elements */
+        .ambient-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .video-bg-container {
+            width: 100%;
+            height: 100%;
+            opacity: 0.10;
+            mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 80%);
+            -webkit-mask-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,1) 30%, rgba(0,0,0,0) 80%);
+        }
+
+        .video-bg-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .glow-orb {
+            position: absolute;
+            width: 700px;
+            height: 700px;
+            background: radial-gradient(circle, var(--gold-glow) 0%, rgba(0,0,0,0) 70%);
+            top: -150px;
+            left: -150px;
+            animation: orbFloat 20s ease-in-out infinite alternate;
+        }
+
+        /* Continuous Scroll Layout Structure */
+        .narrative-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Entry Cover Page */
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-tag {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5em;
+            color: var(--gold-primary);
+            margin-bottom: 1.5rem;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: heroFadeIn 1.5s var(--ease-luxury) forwards 0.2s;
+        }
+
+        .hero-title {
+            font-size: clamp(2rem, 5.5vw, 4.5rem);
+            font-weight: 200;
+            line-height: 1.3;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.02em;
+            padding: 0 10px;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: heroFadeIn 1.5s var(--ease-luxury) forwards 0.5s;
+        }
+
+        .hero-title span {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            background: linear-gradient(90deg, var(--gold-light), var(--gold-primary), var(--gold-dark), var(--gold-light));
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: goldShimmer 8s linear infinite;
+        }
+
+        .scroll-indicator {
+            position: absolute;
+            bottom: 40px;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.4em;
+            color: var(--text-muted);
+            opacity: 0;
+            padding: 0 15px;
+            animation: heroFadeIn 1.5s ease forwards 1.2s, scrollBounce 2s infinite;
+        }
+
+        /* Narrative Chapters / Gallery Sections */
+        .chapter-track {
+            display: flex;
+            flex-direction: column;
+            gap: 120px;
+            padding: 40px 0 80px 0;
+        }
+
+        .story-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 60px;
+            width: 100%;
+        }
+
+        .story-row:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        /* Split-Layout Picture Frames */
+        .frame-wrapper {
+            position: relative;
+            background: #0d0d0f;
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+            flex: 0 1 480px;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 4 / 3.3;
+            transition: transform 0.8s var(--ease-luxury), box-shadow 0.8s var(--ease-luxury);
+        }
+
+        .frame-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            filter: grayscale(25%) contrast(102%);
+            transition: transform 0.8s var(--ease-luxury), filter 0.8s var(--ease-luxury);
+        }
+
+        .frame-caption {
+            position: absolute;
+            bottom: 24px;
+            left: 24px;
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: var(--gold-light);
+            text-shadow: 0 2px 12px rgba(0,0,0,0.9);
+            z-index: 2;
+            opacity: 0.8;
+        }
+
+        /* Hover Mechanics */
+        .frame-wrapper:hover {
+            transform: scale(1.02) translateY(-5px);
+            box-shadow: 0 50px 110px rgba(0, 0, 0, 0.8), 0 0 30px rgba(223, 186, 115, 0.1);
+        }
+
+        .frame-wrapper:hover img {
+            transform: scale(1.04);
+            filter: grayscale(0%) contrast(100%);
+        }
+
+        /* Premium Typography Text Blocks */
+        .wish-text-card {
+            flex: 1;
+            max-width: 520px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            padding: 3.5rem 3rem;
+            border-radius: 32px;
+            box-shadow: 0 30px 70px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .wish-text-card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 15%;
+            width: 70%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(223, 186, 115, 0.4), transparent);
+        }
+
+        .wish-text-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 400;
+            font-size: clamp(1.4rem, 3vw, 1.8rem);
+            margin-bottom: 1.2rem;
+            color: var(--gold-light);
+            letter-spacing: -0.01em;
+        }
+
+        .wish-text-card p {
+            font-size: 1.02rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+            font-weight: 300;
+        }
+
+        /* Closing Grand Finale Section */
+        .closing-anthology {
+            text-align: center;
+            padding: 100px 10px 120px 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 40px;
+        }
+
+        .closing-anthology h2 {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-weight: 200;
+            font-size: clamp(1.6rem, 4vw, 2.8rem);
+            line-height: 1.4;
+            margin-bottom: 2.5rem;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .closing-anthology h2 span {
+            background: linear-gradient(90deg, var(--gold-light), var(--gold-primary), var(--gold-dark), var(--gold-light));
+            background-size: 300% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: goldShimmer 6s linear infinite;
+        }
+
+        .signature-block {
+            display: inline-flex;
+            align-items: center;
+            gap: 2rem;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--border-glass);
+            padding: 1rem 2.5rem;
+            border-radius: 40px;
+        }
+
+        .signature {
+            font-family: 'Playfair Display', serif;
+            font-style: italic;
+            font-size: 1.2rem;
+            color: var(--text-light);
+        }
+
+        .stamp {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            color: rgba(255, 255, 255, 0.3);
+            border-left: 1px solid rgba(255, 255, 255, 0.1);
+            padding-left: 2rem;
+        }
+
+        /* --- Intersection Observer Scroll Reveal System --- */
+        .reveal-node {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 1.2s cubic-bezier(0.16, 1, 0.3, 1), 
+                        transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+            will-change: transform, opacity;
+        }
+
+        .reveal-node.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Animation Keyframe Sets */
+        @keyframes heroFadeIn {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes orbFloat {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.12; }
+            100% { transform: scale(1.2) translate(60px, 40px); opacity: 0.25; }
+        }
+
+        @keyframes goldShimmer {
+            to { background-position: 300% center; }
+        }
+
+        @keyframes scrollBounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-6px); }
+            60% { transform: translateY(-3px); }
+        }
+
+        /* Comprehensive Responsive Breakdown Layouts */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .story-row { gap: 40px; }
+            .wish-text-card { padding: 2.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .chapter-track {
+                gap: 80px;
+            }
+            .story-row, .story-row:nth-child(even) {
+                flex-direction: column;
+                align-items: center;
+                gap: 24px;
+                width: 100%;
+            }
+            .frame-wrapper {
+                flex: 1 1 auto;
+                max-width: 100%;
+                aspect-ratio: 4 / 3;
+                border-radius: 20px;
+            }
+            .frame-caption {
+                bottom: 16px;
+                left: 16px;
+                font-size: 0.95rem;
+            }
+            .wish-text-card {
+                padding: 2.5rem 1.75rem;
+                border-radius: 24px;
+                max-width: 100%;
+                width: 100%;
+            }
+            .signature-block {
+                flex-direction: column;
+                gap: 1rem;
+                border-radius: 24px;
+                align-items: center;
+                padding: 1.25rem 2rem;
+                width: 100%;
+                max-width: 320px;
+            }
+            .stamp {
+                border-left: none;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+                padding-left: 0;
+                padding-top: 0.75rem;
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="ambient-canvas">
+        <div class="glow-orb"></div>
+        <div class="video-bg-container">
+            <video autoplay loop muted playsinline>
+                <source src="WhatsApp Video 2026-05-17 at 8.18.08 AM.mp4" type="video/mp4">
+            </video>
+        </div>
+    </div>
+
+    <div class="narrative-container">
+
+        <header>
+            <span class="hero-tag">// Premium Edition No. 24</span>
+            <h1 class="hero-title">To the one who makes life<br><span>look effortless.</span></h1>
+            <div class="scroll-indicator">Scroll to explore the chapters</div>
+        </header>
+
+        <div class="chapter-track">
+            
+            <div class="story-row reveal-node">
+                <div class="frame-wrapper">
+                    <img src="WhatsApp Image 2026-05-20 at 8.04.12 AM.jpeg" alt="Chapter Launch">
+                    <div class="frame-caption">24 years of memories...</div>
+                </div>
+                <div class="wish-text-card">
+                    <span class="tag" style="font-size: 0.65rem; color: var(--gold-primary); letter-spacing: 0.3em; text-transform: uppercase; display: block; margin-bottom: 1rem;">Chapter I</span>
+                    <h3>A Brother by Heart</h3>
+                    <p>Happy 24th Birthday to the one who is more than a friend to me—a true brother by heart. Thank you for always being there through every laugh, every struggle, and every unforgettable memory. Life gave me a best friend, but my heart found a brother in you. May this new chapter bring you endless happiness, success, peace, and all the blessings you deserve.</p>
+                </div>
+            </div>
+
+            <div class="story-row reveal-node">
+                <div class="frame-wrapper">
+                    <img src="WhatsApp Image 2026-04-08 at 12.39.28 PM.jpeg" alt="Perspective View">
+                    <div class="frame-caption">twenty-four.</div>
+                </div>
+                <div class="wish-text-card">
+                    <span class="tag" style="font-size: 0.65rem; color: var(--gold-primary); letter-spacing: 0.3em; text-transform: uppercase; display: block; margin-bottom: 1rem;">Chapter II</span>
+                    <h3>More Than Friendship</h3>
+                    <p>24 years of creating a beautiful soul, and I’m lucky enough to be part of your journey. You are not just my friend; you are family to me. No matter how much life changes, our bond will always stay strong. I hope your birthday is filled with genuine smiles, unforgettable moments, and dreams turning into reality. Happy Birthday, brother.</p>
+                </div>
+            </div>
+
+            <div class="story-row reveal-node">
+                <div class="frame-wrapper">
+                    <img src="WhatsApp Image 2026-05-20 at 8.04.12 AM.jpeg" alt="Elegance Loop">
+                    <div class="frame-caption">forever bonded...</div>
+                </div>
+                <div class="wish-text-card">
+                    <span class="tag" style="font-size: 0.65rem; color: var(--gold-primary); letter-spacing: 0.3em; text-transform: uppercase; display: block; margin-bottom: 1rem;">Chapter III</span>
+                    <h3>Bound Beyond Blood</h3>
+                    <p>Not every brother is connected by blood—some are connected by loyalty, trust, memories, and an unbreakable bond. You have been my greatest support, my safe place, and the person who always stands beside me no matter what. On your 24th birthday, I just want to remind you how truly special you are to me. May your life always be filled with happiness, success, peace, and endless blessings. Happy Birthday, brother.</p>
+                </div>
+            </div>
+
+            <div class="closing-anthology reveal-node">
+                <h2>Wishing you a lifetime of bold decisions, inner peace, and <span>limitless horizons.</span></h2>
+                <div class="signature-block">
+                    <p class="signature">Cheers to you always, my brother.</p>
+                    <div class="stamp">MMXXVI // ANTHOLOGY</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const targets = document.querySelectorAll('.reveal-node');
+            
+            const configOptions = {
+                root: null,
+                threshold: 0.04, // Lowered layout threshold specifically for optimal mobile scrolling trigger points
+                rootMargin: "0px 0px -40px 0px"
+            };
+
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, configOptions);
+
+            targets.forEach(node => revealObserver.observe(node));
+        });
+    </script>
+
+</body>
+</html>
